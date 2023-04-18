@@ -8,11 +8,12 @@ import {
   IconButton,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import logo from "../../public/logo.png";
 import Image from "next/image";
 import MenuIcon from "@mui/icons-material/Menu";
+import { Oxygen } from "next/font/google";
 
 const menus = {
   PRODUCTS: {
@@ -48,15 +49,21 @@ const menus = {
 };
 
 const checkMenuType = (menu, val) => {
-  console.log("this is val ", menu?.innerHTML.includes(val));
+  // console.log(menu, "menu");
+  // console.log(val, "val");
+  // console.log("this is val ", menu?.innerHTML.includes(val));
   // return menu?.getElementsByTagName("button")?.[0]?.innerHTML === val;
   return menu?.innerHTML.includes(val);
 };
 
-const MenuList = ({ menu, handleClick, handleClose }) => {
-  return Object.keys(menus).map((e) => {
+const MenuList = ({ menu, handleClick, handleClose, isHoverable }) => {
+  return Object.keys(menus).map((e, i) => {
     return (
-      <MenuItem sx={{ display: "flex" }}>
+      <MenuItem
+        key={i}
+        sx={{ display: "flex", fontFamily:"Oxygen" }}
+        onMouseEnter={isHoverable ? handleClick : null}
+      >
         <Box
           id="menu-button"
           aria-controls={checkMenuType(menu, e) ? "menu-product" : undefined}
@@ -76,10 +83,13 @@ const MenuList = ({ menu, handleClick, handleClose }) => {
 
         {menus[e]?.subMenu && (
           <Menu
+            keepMounted
             id="menu-menu"
             anchorEl={menu}
             open={checkMenuType(menu, e)}
             onClose={handleClose}
+            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+            transformOrigin={{ vertical: "top", horizontal: "left" }}
             MenuListProps={{ "aria-labelledby": "menu-button" }}
             sx={{
               "& .MuiMenu-list": {
@@ -87,9 +97,13 @@ const MenuList = ({ menu, handleClick, handleClose }) => {
               },
             }}
           >
-            {menus[e]?.subMenu.map((ele) => {
-              return <MenuItem onClick={handleClose}>{ele.title}</MenuItem>;
-            })}
+            <Box onMouseLeave={() => handleClose()}>
+              {menus[e]?.subMenu.map((ele, i) => (
+                <MenuItem key={i} onClick={handleClose} style={{fontFamily:"Oxygen"}}>
+                  {ele.title}
+                </MenuItem>
+              ))}
+            </Box>
           </Menu>
         )}
       </MenuItem>
@@ -109,7 +123,6 @@ const Navbar = () => {
     >
       <Container
         maxWidth="xl"
-        disableGutters
         sx={{
           width: "100%",
           alignItems: "center",
@@ -200,8 +213,11 @@ const Navbar = () => {
         >
           <MenuList
             menu={menu}
+            isHoverable={true}
             handleClick={(e) => setMenu(e.currentTarget)}
             handleClose={() => setMenu(null)}
+            // handleClos={(() => setMenu)()}
+            // handleClos={setMenu}
           />
         </Box>
       </Container>
